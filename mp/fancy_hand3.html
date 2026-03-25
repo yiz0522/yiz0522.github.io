@@ -283,7 +283,7 @@
     }
 
     function drawSciFiSkeleton(hand, gx, gy) {
-      stroke(red(mainColor), green(mainColor), blue(mainColor), 80);
+      stroke(255, 50, 50, 180); // 改為紅色
       let connections = handPose.getConnections();
       for (let i = 0; i < connections.length; i++) {
         let a = connections[i][0], b = connections[i][1];
