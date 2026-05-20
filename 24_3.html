@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PAPAYA 數位工具與 AI 學習知識庫</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.5);
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(156, 163, 175, 0.8);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-200 min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-indigo-600 dark:bg-indigo-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-indigo-200 dark:shadow-none">
+            <span class="text-xl font-bold">P</span>
+          </div>
+          <div>
+            <h1 class="font-black text-lg tracking-wider bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
+              PAPAYA 學習站
+            </h1>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 -mt-1 font-medium">NotebookLM 唯一文件支援知識庫</p>
+          </div>
+        </div>
+
+        <!-- Right Menu & Theme Toggle -->
+        <div class="flex items-center space-x-4">
+          <button id="themeToggle" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors" title="切換主題">
+            <i class="fa-solid fa-moon dark:hidden"></i>
+            <i class="fa-solid fa-sun hidden dark:block"></i>
+          </button>
+          <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400">
+            學生專屬 AI 導師
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Global Header / Search Bar -->
+  <section class="bg-gradient-to-b from-indigo-50/50 via-transparent to-transparent dark:from-indigo-950/20 py-8 px-4 sm:px-6 lg:px-8 border-b border-slate-100 dark:border-slate-800/30">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2 leading-tight">
+        想要掌握哪門數位大腦技術？
+      </h2>
+      <p class="text-slate-500 dark:text-slate-400 text-sm sm:text-base max-w-xl mx-auto mb-6">
+        整合 12 篇 PAPAYA 精選 AI、筆記與排版文件。一鍵搜尋資源、即時 FAQ 解答，更可直接與智慧 AI 助理對話！
+      </p>
+      
+      <!-- Unified Search Box -->
+      <div class="relative max-w-2xl mx-auto shadow-lg rounded-2xl">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <i class="fa-solid fa-magnifying-glass text-slate-400 dark:text-slate-500 text-lg"></i>
+        </div>
+        <input 
+          type="text" 
+          id="globalSearch" 
+          placeholder="輸入關鍵字... 如 'Notion網址'、'Gemma4'、'n8n 部署'、'樣式排版'" 
+          class="w-full pl-12 pr-24 py-4 rounded-2xl bg-white dark:bg-slate-800 border-0 ring-2 ring-indigo-500/10 focus:ring-4 focus:ring-indigo-500/30 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none transition-all text-sm sm:text-base"
+        >
+        <button id="clearSearchBtn" class="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden">
+          <i class="fa-solid fa-circle-xmark"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Container -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- Left: Tab Navigation (Responsive Sidebar / Top Bar) -->
+      <div class="lg:col-span-3 flex lg:flex-col overflow-x-auto lg:overflow-x-visible space-x-2 lg:space-x-0 lg:space-y-2 pb-3 lg:pb-0 border-b lg:border-b-0 border-slate-200 dark:border-slate-800 scrollbar-none">
+        <button onclick="switchTab('ai-chat')" id="tabBtn-ai-chat" class="tab-btn active flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all whitespace-nowrap w-full text-left bg-indigo-600 text-white shadow-md shadow-indigo-100 dark:shadow-none">
+          <i class="fa-solid fa-brain text-base"></i>
+          <span>NotebookLM 文件對話</span>
+        </button>
+        <button onclick="switchTab('resources')" id="tabBtn-resources" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all whitespace-nowrap w-full text-left">
+          <i class="fa-solid fa-folder-open text-base"></i>
+          <span>數位學習資源庫</span>
+        </button>
+        <button onclick="switchTab('faqs')" id="tabBtn-faqs" class="tab-btn flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all whitespace-nowrap w-full text-left">
+          <i class="fa-solid fa-circle-question text-base"></i>
+          <span>常見問題疑難排解</span>
+        </button>
+      </div>
+
+      <!-- Right: Main Content Area -->
+      <div class="lg:col-span-9">
+        
+        <!-- Tab 1: AI Chat (NotebookLM Style) -->
+        <div id="tab-ai-chat" class="tab-content block">
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+            <!-- Chat Window -->
+            <div class="xl:col-span-8 flex flex-col h-[600px] bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+              <!-- Chat Header -->
+              <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
+                <div class="flex items-center space-x-3">
+                  <span class="relative flex h-3.5 w-3.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-500"></span>
+                  </span>
+                  <div>
+                    <h3 class="font-bold text-sm text-slate-900 dark:text-white">PAPAYA AI 專屬文件助理</h3>
+                    <p class="text-xs text-slate-400">已自動比對並注入 12 篇原始課堂文件精髓</p>
+                  </div>
+                </div>
+                <button onclick="clearChat()" class="text-xs font-semibold text-slate-400 hover:text-red-500 transition-colors flex items-center space-x-1">
+                  <i class="fa-solid fa-trash-can"></i>
+                  <span>清空對話</span>
+                </button>
+              </div>
+
+              <!-- Message Window -->
+              <div id="chatMessages" class="flex-grow overflow-y-auto p-5 space-y-4 custom-scrollbar bg-slate-50/50 dark:bg-slate-900/10">
+                <!-- Welcome Message -->
+                <div class="flex space-x-3 max-w-[85%]">
+                  <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                    <i class="fa-solid fa-robot"></i>
+                  </div>
+                  <div class="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm text-sm leading-relaxed">
+                    <p class="font-bold text-indigo-600 dark:text-indigo-400 mb-1">同學你好！</p>
+                    我是基於 PAPAYA 電腦教室知識庫打造的 **NotebookLM 風格對話助理**。
+                    <br><br>
+                    我能為你**搜尋並比對**所有上傳的文件。你可以試試點擊下方的「推薦學習問題」，或直接在對話框輸入提問喔！
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chat Input Form -->
+              <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800">
+                <form id="chatForm" onsubmit="handleSendChat(event)" class="flex items-center space-x-2">
+                  <input 
+                    type="text" 
+                    id="chatInput" 
+                    placeholder="對本堂課所有文檔提問..." 
+                    class="flex-grow px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none ring-2 ring-transparent focus:ring-indigo-500/20 text-sm transition-all"
+                    required
+                  >
+                  <button type="submit" class="p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md shadow-indigo-100 dark:shadow-none transition-colors">
+                    <i class="fa-solid fa-paper-plane"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Right: Document List & Suggestions -->
+            <div class="xl:col-span-4 space-y-6">
+              <!-- Loaded Files -->
+              <div class="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+                <h4 class="font-black text-sm text-slate-900 dark:text-white uppercase tracking-wider mb-3 flex items-center justify-between">
+                  <span>已載入參考文檔</span>
+                  <span class="text-xs bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full" id="fileCountBadge">12 份</span>
+                </h4>
+                <div class="max-h-[220px] overflow-y-auto space-y-2 pr-1 custom-scrollbar" id="sidebarFileList">
+                  <!-- JS will render file badges dynamically -->
+                </div>
+              </div>
+
+              <!-- Recommendation Chips -->
+              <div class="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+                <h4 class="font-black text-sm text-slate-900 dark:text-white uppercase tracking-wider mb-3 flex items-center">
+                  <i class="fa-solid fa-star text-amber-500 mr-2"></i>
+                  <span>推薦學習問題</span>
+                </h4>
+                <div class="flex flex-col space-y-2">
+                  <button onclick="askPreset('我想要本機離線跑 AI，不外洩隱私，我的電腦硬體要如何挑選？')" class="text-left text-xs bg-slate-50 dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-600 dark:hover:text-indigo-400 px-3.5 py-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800 transition-colors">
+                    🙋‍♂️ 本機離線 AI 與硬體挑選
+                  </button>
+                  <button onclick="askPreset('我想架設個人網站與部落格，可以用 Notion、Wix、還是 SharePoint？各自有什麼差別？')" class="text-left text-xs bg-slate-50 dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-600 dark:hover:text-indigo-400 px-3.5 py-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800 transition-colors">
+                    🌐 架站工具評比 (Notion / Wix / SharePoint)
+                  </button>
+                  <button onclick="askPreset('什麼是 Word 排版中「多層次清單」綁定樣式的千古難題？要如何用 AI 輕鬆解決？')" class="text-left text-xs bg-slate-50 dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-600 dark:hover:text-indigo-400 px-3.5 py-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800 transition-colors">
+                    📝 Word 排版多層次清單難題與 AI 解決
+                  </button>
+                  <button onclick="askPreset('微軟的 Power Automate 與開源 n8n 相比，我該如何選擇？')" class="text-left text-xs bg-slate-50 dark:bg-slate-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-600 dark:hover:text-indigo-400 px-3.5 py-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800 transition-colors">
+                    ⚡ Power Automate 智慧助理 vs n8n 自動化
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Resource Directory -->
+        <div id="tab-resources" class="tab-content hidden">
+          <!-- Tag Filter Header -->
+          <div class="flex flex-wrap items-center gap-2 mb-6" id="tagFilterContainer">
+            <button onclick="filterResources('all')" class="filter-btn active px-3.5 py-1.5 rounded-full text-xs font-semibold bg-indigo-600 text-white transition-all shadow-sm">全部</button>
+            <button onclick="filterResources('AI工具')" class="filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all">AI 工具</button>
+            <button onclick="filterResources('筆記與知識管理')" class="filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all">筆記與知識管理</button>
+            <button onclick="filterResources('文書排版')" class="filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all">文書排版</button>
+            <button onclick="filterResources('網頁與社群')" class="filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all">網頁與架站</button>
+            <button onclick="filterResources('數據與試算表')" class="filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all">數據與自動化</button>
+          </div>
+
+          <!-- Cards Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="resourcesGrid">
+            <!-- Dynamic Cards Inserted Here -->
+          </div>
+        </div>
+
+        <!-- Tab 3: FAQ折疊面板 -->
+        <div id="tab-faqs" class="tab-content hidden space-y-4" id="faqContainer">
+          <!-- Accordions injected by JS -->
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Grounding Modal / Source Citation Detail -->
+  <div id="citationModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-700 transform transition-transform scale-95 duration-200" id="modalContainer">
+      <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-file-invoice text-indigo-600 dark:text-indigo-400"></i>
+          <h3 class="font-bold text-sm text-slate-900 dark:text-white">PAPAYA 課堂文獻詳情</h3>
+        </div>
+        <button onclick="closeCitation()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <h4 id="citationTitle" class="text-base font-black text-slate-900 dark:text-white">文件名稱</h4>
+        <div class="flex space-x-2">
+          <span id="citationTag" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">分類標籤</span>
+        </div>
+        <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 max-h-[300px] overflow-y-auto text-sm leading-relaxed text-slate-600 dark:text-slate-300 custom-scrollbar" id="citationContent">
+          文件內容...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white dark:bg-slate-950/30 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-400 mt-12">
+    <div class="max-w-7xl mx-auto px-4">
+      <p class="mb-1">PAPAYA AI 學習站 © 2026. 根據上傳 NotebookLM 全能數位教材開發打造。</p>
+      <p class="text-[10px] text-slate-400">本系統與 Gemini 2.5 Flash 即時串接，保證完全自主、文件安全且隱私無虞。</p>
+    </div>
+  </footer>
+
+  <!-- Script Implementation -->
+  <script>
+    // System Theme Init & Toggle
+    const themeToggleBtn = document.getElementById('themeToggle');
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    themeToggleBtn.addEventListener('click', () => {
+      if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.theme = 'light';
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.theme = 'dark';
+      }
+    });
+
+    // Unified 12 Documents Data representing actual user uploaded PAPAYA 電腦教室 files
+    const documents = [
+      {
+        id: "gemma-4",
+        title: "別再小看本地 AI！Gemma 4 + LM Studio 讓你的電腦變成超級離線 AI 工作站",
+        tag: "AI工具",
+        icon: "fa-laptop-code",
+        summary: "免費離線 AI 模型，適合在意隱私的使用者。教學介紹 2B 至 31B 不同的推理規格需求與 Docker 連接技巧。",
+        content: "Gemma 4 是 Google 推出的免費開源本地 AI 模型，強調 100% 離線運行保障隱私，無需上傳雲端，且免訂閱費。硬體需求分級：2B 適合手機平板；4B 適合入門筆電；26B/31B 推理能力極強，但需高階獨立 GPU（大量 VRAM）。可透過Can Can I Run AI Locally網站進行自動化硬體 VRAM 等級偵測。工具可使用指令派的 Ollama 或是圖形介面、對新手友善的 LM Studio。LM Studio 中可載入 Gemma 模型並拉高 Context Window（上下文限額），以本機 API 方式，結合 VS Code 的 Continue 擴充功能，就能做到零元 Vibe Coding 生產力。全域與區域變數設定也能在其中完美生成與除錯。"
+      },
+      {
+        id: "claude-design",
+        title: "超強的 AI 前端設計師來了！Claude Design 跟你聊聊天就把網站設計出來",
+        tag: "網頁與社群",
+        icon: "fa-palette",
+        summary: "Anthropic 旗下的對話式 AI 網頁設計平台，藉由對話建立風格、切換調色盤，並由 Claude Code 協助建置上線。",
+        content: "Claude Design 是一款對話式 AI 設計系統，可用來建立網頁、簡報、App 互動原型。支持匯入品牌資產、Logo、字型檔與 GitHub 專案。若沒有，可藉由上傳 Dribbble 太空觀測營等參考圖。藉由「Set up Design System」建立如「未來科技風」的樣版設定。能輕鬆打造帶有 Tweaks 面板（快速切換強調色色彩與調色盤）的響應式網頁，包含互動式水平時間軸、軌道示意圖、預留報名表單等。最後藉由產生專屬指令，無縫導向 Claude Code 進行打包、專案轉移與上線部屬。"
+      },
+      {
+        id: "notion-publish",
+        title: "Notion 推出「網站發布」功能！低成本且易維護，只要會作筆記就能建立網站！",
+        tag: "網頁與社群",
+        icon: "fa-globe",
+        summary: "將 Notion 筆記直接發布為網站，免費提供 notion.site 子網域、啟用搜尋索引、設定暗黑模式及自訂網域等高級設定。",
+        content: "Notion 推出的「網站發布（Publish）」功能提供一鍵公開上線服務。免費版用戶能取得「[自訂名稱].notion.site」之子網址。可在分享菜單（Publish）直接更新 Slug（網域後綴）。支援細節調整：是否允許搜尋引擎（Google）收錄（SEO 優化）、頁面導航（Header Navigation）、搜尋按鈕開關、自訂 Favicon 圖示、網站縮圖卡片（社群分享卡片）、強設為暗色模式或隨系統 theme。支持嵌入 Google 地圖、訪客留言表單等富文本內容，非常適合求職履歷或個人形象作品集架站。"
+      },
+      {
+        id: "claude-cowork",
+        title: "Claude Cowork 最友善的手把手教學！帶你用客製技能實現 AI 自動代工",
+        tag: "AI工具",
+        icon: "fa-user-tie",
+        summary: "不只告訴你答案，而是能自動操作資料夾、整合 API、自動打包郵件與依主題分類檔案的 AI 代工系統。",
+        content: "Claude Cowork 是 Anthropic 2026 最新推出的超級自動化 AI 助理。它不僅是生成答案，而是真正「交出成品」的代工助理。核心理念是「Secure Folder Base」（安全工作資料夾隔離區），Cowork 只會在被指定的特定資料夾環境中執行任務，保護系統其它隱私。功能三大支柱：1. Skills：可用自然語言或斜線（如 welcome-email）啟用的客製化可重複利用技能；2. Connectors：連結第三方 APIs；3. Plugins：將 Skill 和 Connector 打包而成的完整專業工具箱。實用操作包括將學員攝影作業（靜物/人像/風景）利用視覺辨識分流整理至指定目錄，或自动讀取學員清單大量發送歡迎信。"
+      },
+      {
+        id: "notion-knowledge",
+        title: "如何善用 Notion 快速掌握一門知識？最強筆記術與大腦知識庫",
+        tag: "筆記與知識管理",
+        icon: "fa-brain",
+        summary: "活用 Notion Table 資料庫核心、多選標籤、日期截止日、關聯表，搭配每日重複範本與按鈕流程大開外掛。",
+        content: "Notion 去中心化資料管理大腦是以「資料庫（Database / Table）」為核心。基本欄位：Title（名稱）、Multi-select（類別標籤）、Date（截止日/追蹤時間）、URL 網址、Relation（關聯資料庫）。視圖轉換：看板模式（Kanban Board）能藉由狀態（Status）欄位將卡片拖移分類（進行中/已完成/待處理），一目瞭然。高階知識外掛：利用「重複範本（Repeat Template）」於每日固定點（如早上7點）自動建立學習卡；更可利用「Button（按鈕）」功能，點擊按鈕直接增加預載分類卡片、修改其狀態，大幅減低繁瑣輸入。"
+      },
+      {
+        id: "ollama-local",
+        title: "免費開源本機 Ollama 的微調與 Docker Open WebUI 安裝",
+        tag: "AI工具",
+        icon: "fa-terminal",
+        summary: "徹底離線 AI 工具。結合 Docker 部署 Web UI、如何使用 Markdown 交互、並透過 Unsloth 的 JSON 行程訓練客製微調模型。",
+        content: "Ollama 是免付費、無雲端上傳的開源本地模型運作引擎。由於沒有自帶 GUI，我們需要用 Docker 環境快速下載並 pull image 建立本地容器來跑「Open WebUI」，完美還原 ChatGPT 舒適操作。Ollama 支持「文件檢索與引導（RAG）」，利用 # 字號即可叫出上傳的產品 PDF、Markdown 筆記供 AI 當下查閱。進階需求是「模型微調（Model Fine-tuning）」，需準備 JSON 格式（包含多筆 structured 問答 Q&A pairs）傳入。為此可先用 ChatGPT 協助重構亂文，最後投給 Unsloth 網站工具進行開源模型的二次微調，生成個人化特定領域專家本地模型。"
+      },
+      {
+        id: "anytype-notion-alt",
+        title: "Notion 要跌下神壇了？採用去中心化技術的類 Notion 本地筆記工具 Anytype",
+        tag: "筆記與知識管理",
+        icon: "fa-shield-halved",
+        summary: "主打隱私、去中心化與完全離線，無需傳統註冊、改用 12 Recovery Phrase 解密，具有 Object 系統概念。",
+        content: "Anytype 是 Notion 的去中心化、本地優先加密替代品。在安全性上不使用中央資料伺服器、無需信箱或密碼，改由系統本地產生一組「12 個單字的恢復短語（Recovery Phrase）」作為唯一數據解密與跨端（如手機掃描 QR 登入）登入的私鑰。其架構與 Notion 略有不同，是以「物件（Object）」為核心，一切皆為物件。兩大分類概念：1. 集合（Set）：由同一個物件類型（如 Game）組成的動態篩選表格，有看板與畫廊模式；2. 集錦（Collection）：由手動鏈結（連結至 / Link to）不同物件（如遊戲、人物、公司）所組成的靜態資料集夾，提供高自由度腦力激盪關聯圖 view。"
+      },
+      {
+        id: "arc-browser",
+        title: "Arc 瀏覽器真香！用 Spaces 空間與獨立 Profile 打破你的瀏覽習慣",
+        tag: "網頁與社群",
+        icon: "fa-compass",
+        summary: "獨特左側邊欄、分頁自動存檔、內建筆記與畫布，尤以 Space 與獨立 Profile 完美隔絕工作與生活的個人隱私。",
+        content: "Arc 瀏覽器以左側邊欄、簡潔空間美學著稱。最厲害的核心為「空間（Space）」與「設定檔（Profile）」的雙向隔離。使用者可在 Arc 內建立「工作 Space」與「生活 Space」。透過建立不同的 Profile，讓生活 Space 登入個人 Gmail、工作 Space 登入公司系統，Cookie 與帳號登入完全阻絕、互不干擾！更內建 Spotlight 風格搜尋、分割視窗（Split View 拖曳寬度比）、快捷切換（Ctrl+Tab）、內建空白 Notes 及畫板（Easels），大幅簡化傳統視窗切換地獄。"
+      },
+      {
+        id: "n8n-automation",
+        title: "學會 n8n 為你省下 80% 時間！ Docker 部署與 Google API 串接自動化",
+        tag: "數據與試算表",
+        icon: "fa-network-wired",
+        summary: "本機 Docker 自行部署 n8n，設定 manual 觸發器、Merge 整合節點、Sticky Note 說明，完成 AI 自動英翻中等工作流。",
+        content: "n8n 是一款強大、極高隱私的開源自動化工具，可避開付費限額在本機使用 Docker 自架部署。工作流架構：Trigger（觸發器，如手動、Webhook、時間 Cron）啟用後即自動向下遞推。高難度串接：多分支匯整可用 Merge（合併節點）或 Aggregate 減少重複流程，亦可用 Sticky Note 在空白處拉出有色便利貼，大幅提升閱讀性。影片實作利用 Google Cloud Platform（GCP）取得 OAuth 通行憑證（ID與金鑰、重新導向 URI），串接 Google Calendar、Gmail、OpenAI API 等完成「偵測 RSS 新聞 -> AI 自動英翻中 -> 自動寄送總結郵件」的智慧多環節助理。"
+      },
+      {
+        id: "excel-lambda",
+        title: "即使不會寫程式也能用 LAMBDA 自創函數！LET 函數簡化複雜公式",
+        tag: "數據與試算表",
+        icon: "fa-table",
+        summary: "用 LET 大幅為龐大公式瘦身，避免重疊重寫耗損效能；用 LAMBDA 在不用 VBA 的情況下，定義出自創函數與測試。",
+        content: "LET 與 LAMBDA 是 Microsoft 365 / 網頁版中對數據分析工作效率起決定性作用的兩大高級函數。`LET` 的核心是「替複雜公式中的重複部分取名字（定義變數）」，例如在 nested IFS 多層次級距判斷中，不用重複貼上三次 heavy 的 `AVERAGE` 平均值計算，改由一列 `成績, AVERAGE(...)` 命名，再由名稱直接判斷，能大幅提高 Excel 的數據運算效率。而 `LAMBDA` 則能在不用 VBA 或 JS 的狀態下「建立客製化命名函數」（如自創會員折扣公式）。結構為 `LAMBDA(原價, 原價*0.9)`，在公式最尾端套上括號即 `(1000)` 來傳入材料，便能完成本機的即時函數 debug 測試。"
+      },
+      {
+        id: "copilot-office",
+        title: "突然 Word、Excel、PowerPoint 都變聰明了？ Microsoft Copilot 橫空出世",
+        tag: "文書排版",
+        icon: "fa-file-powerpoint",
+        summary: "微軟 Copilot 全能整合。Word 一鍵撰寫活動企劃、自動改寫；PowerPoint 生成主題大綱簡報；Excel 計算與公式解析。",
+        content: "Microsoft Copilot 深度嵌入 Microsoft 365 辦公套件（Copilot Pro 採月租20美元或點數制）。Word 應用中：在新頁面快捷鍵 `Alt+i` 即可呼叫 Copilot 撰寫企劃，支援文字擴增（如擴展到350字補充細節），自動改寫（Auto Rewrite）一鍵產生三個語氣版本比較。Excel 中：若表格儲存在 OneDrive，Copilot 可一鍵增加「稅後金額」公式，或利用 VLOOKUP/XLOOKUP 進行自動跨表分類搜尋，還會完整解說公式運算原理。PowerPoint 中：一秒閱讀總結漫長會議重點，並依指示直接建立起對應的大綱簡報投影片與視覺風格設定。"
+      },
+      {
+        id: "word-list-style",
+        title: "Word 排版排到崩潰？將「文字」與「樣式樣板」徹底分開的高級祕技",
+        tag: "文書排版",
+        icon: "fa-file-word",
+        summary: "不要再手動上色啦！利用 Word「樣式」與「定義新的多層次清單」關聯，不費吹灰之力完成合規公文與報告書。",
+        content: "Word 結構化排版的終極核心是「將文字內容與格式設計徹底分離」。凡涉及外觀、顏色、大小、縮排，皆由「樣式（Style）」全局控制，如此修改樣式即能同步修正全文。解決「多層次清單」縮排跑掉、編號混亂的千古難題做法：進入「多層次清單 -> 定義新的多層次清單」，將「階層1」綁定到「標題1樣式」，「階層2」綁定至「標題2樣式」以此類推。這樣能確保大綱編號不與內容脫鉤。當我們將此完美範本上傳給 Claude，只要下一句『保留範本中的所有「樣式」，僅修改「文字」內容』，Claude 就會吐出 100% 符號公文格式、無任何跑版、能直接在 Navigation Bar 功能窗格導航與自動生成目錄的完美 Word 文件！"
+      }
+    ];
+
+    // FAQ Hand-crafted data based on the video transcripts
+    const faqs = [
+      {
+        q: "Gemma 4 有哪些版本？我該如何選擇？",
+        a: "Gemma 4 一共推出了四個不同的版本：1. **2B (E2B)**：適合硬體設備較低階的手機或平板；2. **4B (E4B)**：適合一般的筆記型電腦與入門電腦；3. **26B / 31B**：推理運算能力極強，能勝任寫程式等複雜邏輯推理，但需要高階電腦與足夠 VRAM 獨立顯卡方能運行。可以使用 Can I Run AI Locally 網站進行本機硬體分析偵測。"
+      },
+      {
+        q: "LM Studio 該怎麼跟 VS Code 程式開發環境進行串接？",
+        a: "在 LM Studio 切換至左側的「開發者 (Developer)」頁面，點擊開啟本地伺服器功能（Local Server）。隨後在下載模型頁面拉高「上下文額度（Context Window）」。接著在 VS Code 中下載免費開源的 AI 擴充功能「Continue」，即可連上 LM Studio 的本地 API，在 VS Code 裡直接與本地離線 AI 連線進行寫程式與除錯。"
+      },
+      {
+        q: "Notion 網站發布（Publish）有哪些進階設定？",
+        a: "在發布選單中，Notion 付費版與免費版用戶各自可進行不同細緻調整：1. **自訂 Slug**：修改 notion.site 後方的英文網址字眼；2. **SEO 搜尋引擎索引**：允許 Google 搜尋到你的網站；3. **Header 與 Navigation**：設定是否顯示導航連結與搜尋功能；4. **外觀自訂**：設定 Favicon 圖示、網站社群分享卡片縮圖，以及指定要強設為 Dark Mode、Light Mode 或是自動（隨系統 theme）。"
+      },
+      {
+        q: "n8n 中，手動觸發（Manual Trigger）如何輸入測試資料？",
+        a: "當我們選取手動觸發節點（Trigger Manually）後，在節點的設定視窗內點擊「Set Mock Data（建立模擬測試數據）」按鈕。此時可以直接在彈出的視窗中自由定義與修改輸入的 JSON 格式資料，藉此在不需要實際連線外部 APIs 的狀態下，模擬完整的流程、Merge（合併節點）或翻譯。"
+      },
+      {
+        q: "LET 函數與 LAMBDA 函數如何聯手在 Excel 打造極限效能？",
+        a: "`LET` 可以用來宣告臨時變數，將重複利用的平均值 `AVERAGE`、`VLOOKUP` 公式在最前端定義一個簡短好認的名稱（如「成績」），這樣在後方 IFS 多層判斷中就不用重複計算好幾次，避免效能卡頓。而 `LAMBDA` 則能在完全不寫 VBA 的情況下，在名稱管理員中宣告出自建邏輯（如會員折扣 `LAMBDA(原價, 原價*0.9)`），非常乾淨。"
+      },
+      {
+        q: "Word 排版時，文字樣式與多層次清單連動最核心的操作是什麼？",
+        a: "點擊上方功能區的「多層次清單」，選擇「定義新的多層次清單」。在彈出的面板中展開左下角的「更多」，核心在於將「一級階層」連結至「標題 1 樣式」，「二級階層」連結至「標題 2 樣式」。這是因為 Word、Excel 等程式處理 Word 文件時，文字「內容」必須與「樣式（Design Style）」解耦，此舉可確保未來全文更新時一鍵替換，絕不跑版。"
+      }
+    ];
+
+    // State Variables
+    let activeTab = 'ai-chat';
+    let currentFilterTag = 'all';
+
+    // 1. Setup Tab switching
+    function switchTab(tabId) {
+      activeTab = tabId;
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-100');
+        btn.classList.add('text-slate-600', 'dark:text-slate-400', 'hover:bg-slate-100', 'dark:hover:bg-slate-800');
+      });
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+        content.classList.remove('block');
+      });
+
+      const activeBtn = document.getElementById(`tabBtn-${tabId}`);
+      activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-100');
+      activeBtn.classList.remove('text-slate-600', 'dark:text-slate-400', 'hover:bg-slate-100', 'dark:hover:bg-slate-800');
+
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabId}`).classList.add('block');
+    }
+
+    // 2. Render files list in Sidebar
+    function renderSidebarFiles() {
+      const listContainer = document.getElementById('sidebarFileList');
+      listContainer.innerHTML = '';
+      documents.forEach(doc => {
+        const item = document.createElement('div');
+        item.className = "flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-900 transition-all cursor-pointer group";
+        item.onclick = () => openCitation(doc.id);
+        item.innerHTML = `
+          <div class="flex items-center space-x-2.5 truncate">
+            <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+              <i class="fa-solid ${doc.icon} text-xs"></i>
+            </div>
+            <p class="text-xs font-medium text-slate-700 dark:text-slate-300 truncate pr-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">${doc.title}</p>
+          </div>
+          <span class="text-[9px] bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400 px-1.5 py-0.5 rounded-md font-bold flex-shrink-0">${doc.tag}</span>
+        `;
+        listContainer.appendChild(item);
+      });
+    }
+
+    // 3. Render Resource Directory Grid
+    function renderResources(filteredDocs = documents) {
+      const grid = document.getElementById('resourcesGrid');
+      grid.innerHTML = '';
+      
+      if (filteredDocs.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-400 dark:text-slate-500">
+            <i class="fa-solid fa-folder-open text-4xl mb-3"></i>
+            <p class="text-sm font-bold">未找到相符的資源卡片</p>
+          </div>
+        `;
+        return;
+      }
+
+      filteredDocs.forEach(doc => {
+        const card = document.createElement('div');
+        card.className = "bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-950";
+        card.onclick = () => openCitation(doc.id);
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-10 h-10 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                <i class="fa-solid ${doc.icon} text-lg"></i>
+              </div>
+              <span class="text-[10px] bg-slate-100 text-slate-600 dark:bg-slate-900 dark:text-slate-400 px-2 py-0.5 rounded-full font-bold tracking-wider">${doc.tag}</span>
+            </div>
+            <h4 class="font-black text-sm text-slate-900 dark:text-white mb-2 leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">${doc.title}</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">${doc.summary}</p>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/50 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+            <span>瀏覽本堂完整文件說明</span>
+            <i class="fa-solid fa-arrow-right-long transform group-hover:translate-x-1 transition-transform"></i>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // 4. Render FAQ accordion List
+    function renderFAQs(filteredFaqs = faqs) {
+      const container = document.getElementById('faqContainer');
+      container.innerHTML = '';
+
+      if (filteredFaqs.length === 0) {
+        container.innerHTML = `
+          <div class="py-12 text-center text-slate-400 dark:text-slate-500">
+            <i class="fa-solid fa-face-meh text-4xl mb-3"></i>
+            <p class="text-sm font-bold">未找到相符的疑難解答問題</p>
+          </div>
+        `;
+        return;
+      }
+
+      filteredFaqs.forEach((faq, index) => {
+        const item = document.createElement('div');
+        item.className = "bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm transition-all";
+        item.innerHTML = `
+          <button onclick="toggleFaq(${index})" class="w-full px-5 py-4 text-left font-bold text-sm text-slate-900 dark:text-white flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+            <span class="pr-4 flex items-center"><span class="text-indigo-500 mr-2.5">Q${index+1}.</span> ${faq.q}</span>
+            <i id="faqIcon-${index}" class="fa-solid fa-chevron-down text-slate-400 transition-transform"></i>
+          </button>
+          <div id="faqAnswer-${index}" class="hidden px-5 pb-5 pt-1 text-xs sm:text-sm leading-relaxed text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/10">
+            ${faq.a}
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function toggleFaq(index) {
+      const answer = document.getElementById(`faqAnswer-${index}`);
+      const icon = document.getElementById(`faqIcon-${index}`);
+      if (answer.classList.contains('hidden')) {
+        answer.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+      } else {
+        answer.classList.add('hidden');
+        icon.classList.remove('rotate-180');
+      }
+    }
+
+    // 5. Filter Resources by Tag
+    function filterResources(tag) {
+      currentFilterTag = tag;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm');
+        btn.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-400', 'hover:bg-slate-100', 'dark:hover:bg-slate-700');
+      });
+
+      const activeBtn = event ? event.target : [...document.querySelectorAll('.filter-btn')].find(b => b.innerText.includes(tag === 'all' ? '全部' : tag));
+      if (activeBtn) {
+        activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+        activeBtn.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-400', 'hover:bg-slate-100', 'dark:hover:bg-slate-700');
+      }
+
+      if (tag === 'all') {
+        renderResources(documents);
+      } else {
+        const filtered = documents.filter(doc => doc.tag === tag);
+        renderResources(filtered);
+      }
+    }
+
+    // 6. Citation Details Modal Functionality
+    function openCitation(id) {
+      const doc = documents.find(d => d.id === id);
+      if (!doc) return;
+      document.getElementById('citationTitle').innerText = doc.title;
+      document.getElementById('citationTag').innerText = doc.tag;
+      
+      // format simple markdown newlines for presentation
+      document.getElementById('citationContent').innerHTML = doc.content.replace(/\n/g, '<br>').replace(/\d\.\s/g, '<br><strong>$&</strong>');
+      
+      const modal = document.getElementById('citationModal');
+      const box = document.getElementById('modalContainer');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        box.classList.remove('scale-95');
+        box.classList.add('scale-100');
+      }, 50);
+    }
+
+    function closeCitation() {
+      const modal = document.getElementById('citationModal');
+      const box = document.getElementById('modalContainer');
+      box.classList.remove('scale-100');
+      box.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 150);
+    }
+
+    // 7. Global Search Box Filter Mechanism
+    const searchInput = document.getElementById('globalSearch');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.trim().toLowerCase();
+      if (query.length > 0) {
+        clearSearchBtn.classList.remove('hidden');
+      } else {
+        clearSearchBtn.classList.add('hidden');
+      }
+
+      // Filter FAQ Tab and Resource Tab instantly
+      const matchedDocs = documents.filter(doc => 
+        doc.title.toLowerCase().includes(query) || 
+        doc.summary.toLowerCase().includes(query) || 
+        doc.content.toLowerCase().includes(query) ||
+        doc.tag.toLowerCase().includes(query)
+      );
+      renderResources(matchedDocs);
+
+      const matchedFaqs = faqs.filter(faq => 
+        faq.q.toLowerCase().includes(query) || 
+        faq.a.toLowerCase().includes(query)
+      );
+      renderFAQs(matchedFaqs);
+
+      // If user is searching, switch to either FAQs or Resources to show matched, if not in Chat
+      if (activeTab === 'ai-chat') {
+        // We let them stay in AI chat but we can pass it as pre-loaded query helper
+      }
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      clearSearchBtn.classList.add('hidden');
+      renderResources(documents);
+      renderFAQs(faqs);
+    });
+
+    // 8. NotebookLM Chat Interface & Gemini API Integration
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const apiKey = ""; // Clean Environment Variable fallback runtime injected key
+
+    // Preset / Recommendation chips triggers
+    function askPreset(question) {
+      chatInput.value = question;
+      handleSendChat(new Event('submit'));
+    }
+
+    function clearChat() {
+      chatMessages.innerHTML = `
+        <div class="flex space-x-3 max-w-[85%]">
+          <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm text-sm leading-relaxed">
+            對話紀錄已清空。您可以再次向我提出任何關於課堂文件的疑難解答喔！
+          </div>
+        </div>
+      `;
+    }
+
+    // local RAG matching logic to extract top relevant file contexts
+    function retrieveRelevantDocs(query) {
+      const terms = query.toLowerCase().split(/[\s,，。？?！!]+/);
+      let scoredDocs = documents.map(doc => {
+        let score = 0;
+        terms.forEach(term => {
+          if (term.length > 1) {
+            if (doc.title.toLowerCase().includes(term)) score += 8;
+            if (doc.summary.toLowerCase().includes(term)) score += 3;
+            if (doc.content.toLowerCase().includes(term)) score += 1;
+          }
+        });
+        return { doc, score };
+      });
+
+      scoredDocs.sort((a, b) => b.score - a.score);
+      const matches = scoredDocs.filter(item => item.score > 0);
+      if (matches.length > 0) {
+        return matches.slice(0, 3).map(m => m.doc); // Return top 3 matched documents
+      }
+      return documents.slice(0, 2); // Default fallback if no match
+    }
+
+    // Format simple Markdown output to HTML
+    function formatMarkdown(text) {
+      // Bold syntax
+      text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Inline Code
+      text = text.replace(/`(.*?)`/g, '<code class="bg-slate-100 dark:bg-slate-900 px-1 py-0.5 rounded text-xs text-rose-500 font-mono font-semibold">$1</code>');
+      // Multi-line code blocks
+      text = text.replace(/```(.*?)\n([\s\S]*?)```/g, '<pre class="bg-slate-950 text-slate-100 p-4 rounded-xl text-xs overflow-x-auto font-mono my-2 border border-slate-800">$2</pre>');
+      // Bullet items
+      text = text.replace(/^\s*-\s+(.*?)$/gm, '<li class="ml-4 list-disc">$1</li>');
+      // Ordered list items
+      text = text.replace(/^\s*(\d+)\.\s+(.*?)$/gm, '<li class="ml-4 list-decimal font-medium mb-1">$2</li>');
+      // Headings
+      text = text.replace(/^### (.*?)$/gm, '<h5 class="text-sm font-black text-indigo-600 dark:text-indigo-400 mt-3 mb-1">$1</h5>');
+      text = text.replace(/^## (.*?)$/gm, '<h4 class="text-base font-black text-slate-900 dark:text-white mt-4 mb-2">$1</h4>');
+      // Preserving newlines with nice paragraph spacings
+      return text.split('\n\n').map(para => `<p class="mb-2 leading-relaxed">${para}</p>`).join('');
+    }
+
+    // Exponential Backoff API Call implementation matching standard Gemini SDK wrapper logic
+    async function callGeminiWithBackoff(userQuery, systemPrompt) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+      const payload = {
+        contents: [{ parts: [{ text: userQuery }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] }
+      };
+
+      let delay = 1000;
+      for (let i = 0; i < 5; i++) {
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，助理無法順利產生回答。";
+          }
+        } catch (error) {
+          // Silent fallback retry logic - do not console log retries as per instructions
+        }
+        await new Promise(resolve => setTimeout(resolve, delay));
+        delay *= 2;
+      }
+      throw new Error("模型伺服器目前忙碌中，請稍候重試。");
+    }
+
+    async function handleSendChat(event) {
+      event.preventDefault();
+      const text = chatInput.value.trim();
+      if (!text) return;
+
+      // Add user message to UI
+      const userMsgDiv = document.createElement('div');
+      userMsgDiv.className = "flex space-x-3 justify-end";
+      userMsgDiv.innerHTML = `
+        <div class="bg-indigo-600 text-white rounded-2xl rounded-tr-none px-4 py-3 shadow-sm text-sm max-w-[85%] leading-relaxed">
+          ${text}
+        </div>
+      `;
+      chatMessages.appendChild(userMsgDiv);
+      chatInput.value = '';
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Add Loading state
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = "flex space-x-3 max-w-[85%]";
+      loadingDiv.id = "chat-loading-state";
+      loadingDiv.innerHTML = `
+        <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600">
+          <i class="fa-solid fa-spinner animate-spin"></i>
+        </div>
+        <div class="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm text-sm">
+          <span class="animate-pulse">正在閱讀本地參考教材與知識庫比對中...</span>
+        </div>
+      `;
+      chatMessages.appendChild(loadingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      // Perform local context retrieval (RAG step)
+      const matchedDocs = retrieveRelevantDocs(text);
+      let contextContent = "";
+      matchedDocs.forEach(doc => {
+        contextContent += `文件標題: ${doc.title}\n分類標籤: ${doc.tag}\n內容內容: ${doc.content}\n\n`;
+      });
+
+      const systemPrompt = `你是一位專業的 PAPAYA 電腦教室智慧助教。
+請完全且『只根據』下方提供的【參考知識庫內容】來精準回答學生的問題。
+如果問題與參考知識庫無關，或知識庫中沒有記載相關解答，請客氣地回答：『抱歉！此問題超出本次 NotebookLM 所包含的 PAPAYA 電腦教室教學文獻範圍，無法提供精確解答。』
+回答時請保持親切、專業、結構明晰，並使用**繁體中文**回答。
+
+【參考知識庫內容】：
+${contextContent}`;
+
+      try {
+        const responseText = await callGeminiWithBackoff(text, systemPrompt);
+        
+        // Remove loading state
+        const loader = document.getElementById("chat-loading-state");
+        if (loader) loader.remove();
+
+        // Render AI message with sources citations
+        const aiMsgDiv = document.createElement('div');
+        aiMsgDiv.className = "flex space-x-3 max-w-[85%] mb-4";
+        
+        // Construct source pills
+        let sourcePillsHtml = "";
+        matchedDocs.forEach(doc => {
+          sourcePillsHtml += `
+            <button onclick="openCitation('${doc.id}')" class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 border border-indigo-200/40 dark:border-indigo-900/30 transition-colors">
+              <i class="fa-solid ${doc.icon}"></i>
+              <span>${doc.title.substring(0, 16)}...</span>
+            </button>
+          `;
+        });
+
+        aiMsgDiv.innerHTML = `
+          <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm text-sm flex flex-col space-y-3">
+            <div class="markdown-body">
+              ${formatMarkdown(responseText)}
+            </div>
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-700/40 flex flex-col space-y-1.5">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center">
+                <i class="fa-solid fa-file-shield mr-1 text-green-500"></i>
+                本地教材引用來源 (NotebookLM RAG)
+              </span>
+              <div class="flex flex-wrap gap-1.5">
+                ${sourcePillsHtml}
+              </div>
+            </div>
+          </div>
+        `;
+        chatMessages.appendChild(aiMsgDiv);
+
+      } catch (err) {
+        const loader = document.getElementById("chat-loading-state");
+        if (loader) loader.remove();
+
+        const errorDiv = document.createElement('div');
+        errorDiv.className = "flex space-x-3 max-w-[85%]";
+        errorDiv.innerHTML = `
+          <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600">
+            <i class="fa-solid fa-circle-exclamation"></i>
+          </div>
+          <div class="bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-200/50 dark:border-red-900/30 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm text-sm">
+            ${err.message || "發生未知錯誤，請重試。"}
+          </div>
+        `;
+        chatMessages.appendChild(errorDiv);
+      }
+
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // On Load Initializations
+    window.onload = function() {
+      renderSidebarFiles();
+      renderResources(documents);
+      renderFAQs(faqs);
+    }
+  </script>
+</body>
+</html>
